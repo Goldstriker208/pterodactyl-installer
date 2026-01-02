@@ -111,3 +111,92 @@ Copyright (C) 2018 - 2026, Vilhelm Prytz, <vilhelm@prytznet.se>, and contributor
 - Maintained by [Linux123123](https://github.com/Linux123123)
 
 Thanks to the Discord moderators [sam1370](https://github.com/sam1370), [Linux123123](https://github.com/Linux123123) and [sinjs](https://github.com/sinjs) for helping on the Discord server!
+
+
+--------------------------------------------
+# Troubleshooting for errors (504, node errors, wings, etc.)
+- Pterodactl Panel [Install Guide](https://pterodactyl.io/panel/1.0/getting_started.html)
+- Pterodactl Panel [Renew Certificate Guide](https://pterodactyl.io/tutorials/creating_ssl_certificates.html)
+
+make sure port 2022/8080 (wings/node)(SSH/SFTP), 3306 (mysql), 443 (webui), 80 (lets encrypt)(use DNS challenge if in use by router) are open 
+22 - used for SSH/SFTP sessions (optional)
+80 - HTTP (sort of optional)(use DNS challenge if in use by router)
+
+use ```ufw allow [PORT]```
+
+### List ports
+```ufw status```
+
+
+
+## HTTP challenge
+
+HTTP challenge requires you to expose port 80 for the challenge verification.
+
+### Nginx
+```bash
+certbot certonly --nginx -d example.com
+```
+### Apache
+```bash
+certbot certonly --apache -d example.com
+```
+### Standalone - Use this if neither works. Make sure to stop your webserver first when using this method.
+```bash
+certbot certonly --standalone -d example.com
+```
+
+## DNS challenge
+
+DNS challenge requires you to create a new TXT DNS record to verify domain ownership, instead of having to expose port 80. The instructions are displayed when you run the certbot command below. 
+1. Run command wait until it says press enter (dont press enter yet) copy the generated value
+2. In your DNS provider (cloudflare) name: _acme-challenge.node (ex: if your node is node.example.com), value: (copied value), TTL: 5 min
+3. Wait 5 min then press enter or run ```dig TXT _acme-challenge.node.example.com +short``` to see if it propergated (if no output, wait longer til 5 min or something is wrong)
+
+```bash
+certbot -d example.com --manual --preferred-challenges dns certonly
+```
+
+## Wings
+
+
+```bash
+systemctl restart wings
+```
+
+```bash
+systemctl stop wings
+```
+
+```bash
+systemctl status wings
+```
+
+Make sure the wings service is stopped first before running these: 
+
+### Run Wings
+```bash
+wings
+```
+
+### Run Wings w/ Debug Mode
+```bash
+wings --debug
+```
+
+## Nginx (Web UI)
+
+```bash
+systemctl restart nginx
+```
+
+```bash
+systemctl stop nginx
+```
+
+```bash
+systemctl status nginx
+```
+
+
+
